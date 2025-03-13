@@ -39,6 +39,7 @@ dependencies:
   cool_alert: ^2.0.1
   persian_datetime_picker: ^3.1.0
   shared_preferences: ^2.5.2
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
