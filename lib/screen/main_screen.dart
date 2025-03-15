@@ -14,6 +14,8 @@ class _MainScreenState extends State<MainScreen>
   late AnimationController _animationController;
   bool _isExpanded = false;
 
+  List<Map<String, String>> goals = []; // เก็บรายการเป้าหมาย
+
   @override
   void initState() {
     super.initState();
@@ -34,16 +36,13 @@ class _MainScreenState extends State<MainScreen>
     });
   }
 
-  // Callback function to save the goal
   void _saveGoal(String title, String description, String time) {
+    setState(() {
+      goals.add({'title': title, 'description': description, 'time': time});
+    });
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Goal "$title" saved successfully at $time')),
-    );
-  }
-
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
     );
   }
 
@@ -55,6 +54,23 @@ class _MainScreenState extends State<MainScreen>
         backgroundColor: Colors.amber[700],
         foregroundColor: Colors.white,
       ),
+      body: goals.isEmpty
+          ? const Center(child: Text('No goals added yet!'))
+          : ListView.builder(
+              itemCount: goals.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: const EdgeInsets.all(8),
+                  child: ListTile(
+                    title: Text(goals[index]['title']!),
+                    subtitle: Text(
+                      '${goals[index]['description']} \nTime: ${goals[index]['time']} hr',
+                    ),
+                    isThreeLine: true,
+                  ),
+                );
+              },
+            ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -62,16 +78,9 @@ class _MainScreenState extends State<MainScreen>
             FloatingActionButton(
               heroTag: "btn1",
               onPressed: () {
-                // Show the Addgoal dialog and pass the _saveGoal callback
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    void _showMessage(String message) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(message)),
-                      );
-                    }
-
                     return Addgoal(onSaveGoal: _saveGoal);
                   },
                 );
@@ -82,7 +91,7 @@ class _MainScreenState extends State<MainScreen>
             const SizedBox(height: 10),
             FloatingActionButton(
               heroTag: "btn2",
-              onPressed: () => _showMessage("View Progress"),
+              onPressed: () {},
               backgroundColor: Colors.amber[700],
               child: const Icon(Icons.bar_chart),
             ),
