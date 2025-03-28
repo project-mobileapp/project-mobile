@@ -20,18 +20,38 @@ class RegisterScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const CustomTextField(labelText: "Full Name", icon: Icons.person),
+            Image.asset(
+              'images/2.jpg', // Update with your actual image path
+              width: 350,
+              height: 350,
+            ),
             const SizedBox(height: 30),
-            const CustomTextField(labelText: "Email", icon: Icons.email),
+            const CustomTextField(
+              labelText: "Full Name",
+              icon: Icons.person,
+            ),
             const SizedBox(height: 30),
-            const CustomTextField(labelText: "Password", icon: Icons.lock, obscureText: true),
+            const CustomTextField(
+              labelText: "Email",
+              icon: Icons.email,
+              keyboardType: TextInputType.emailAddress, validator: _emailValidator),
+            const SizedBox(height: 30),
+            const CustomTextField(
+              labelText: "Password",
+              icon: Icons.lock,
+              obscureText: true, // Hide password input
+            ),
             const SizedBox(height: 24),
-            AnimatedProgressButton(text: "Register",
+            AnimatedProgressButton(
+              text: "Register",
               onPressed: () async {
-                await Future.delayed(const Duration(seconds: 1)); // จำลองการโหลดข้อมูล
+                await Future.delayed(const Duration(seconds: 1));
                 if (context.mounted) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const MainScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const MainScreen()),
+                  );
                 }
               },
             ),
@@ -39,5 +59,19 @@ class RegisterScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Email validator function
+  static String? _emailValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    const emailPattern =
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+    final emailRegex = RegExp(emailPattern);
+    if (!emailRegex.hasMatch(value)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
   }
 }
