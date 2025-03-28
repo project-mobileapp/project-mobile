@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screen/home_screen.dart';
+import 'screen/goal_tracker.dart';
 
 void main() {
   runApp(const MyApp());

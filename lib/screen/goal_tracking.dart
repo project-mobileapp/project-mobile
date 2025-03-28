@@ -62,9 +62,10 @@ class _MainScreenState extends State<MainScreen>
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: ListTile(
-                    title: Text(goals[index]['title']!),
+                    title: Text(goals[index]['title']!,
+                    style: TextStyle(color: Colors.black )),
                     subtitle: Text(
-                      '${goals[index]['description']} \nTime: ${goals[index]['time']} hr',
+                      '${goals[index]['description']} \nTime: ${goals[index]['time']} hr', 
                     ),
                     isThreeLine: true,
                   ),
