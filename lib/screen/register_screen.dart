@@ -20,7 +20,12 @@ class RegisterScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const CustomTextField(labelText: "Full Name", icon: Icons.person),
+            Image.asset(
+              'images/2.jpg', // แก้ไขพาธตามไฟล์ที่ใช้งาน
+              width: 350,
+              height: 350,
+            ),
+            const CustomTextField(labelText: "Name", icon: Icons.person),
             const SizedBox(height: 30),
             const CustomTextField(labelText: "Email", icon: Icons.email),
             const SizedBox(height: 30),
