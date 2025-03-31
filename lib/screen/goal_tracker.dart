@@ -18,7 +18,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       backgroundColor: Colors.amber[50],
       appBar: AppBar(
-        title: const Text('Tracker🏆'),
+        title: const Text('Goal Tracker🏆'),
         centerTitle: true,
         backgroundColor: Colors.amber[700],
         foregroundColor: Colors.white,
