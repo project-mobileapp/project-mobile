@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project/screen/setting_screen.dart';
 import 'Addgoal.dart';
+import 'package:project/popup/edit_goal.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -62,11 +63,22 @@ class _MainScreenState extends State<MainScreen>
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: ListTile(
-                    title: Text(goals[index]['title']!),
+                    title: Text(
+                      goals[index]['title']!,
+                    ),
                     subtitle: Text(
                       '${goals[index]['description']} \nTime: ${goals[index]['time']} hr',
                     ),
-                    isThreeLine: true,
+                    trailing: IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return EditGoal(onSaveGoal: _saveGoal);
+                            },
+                          );
+                        },
+                        icon: Icon(Icons.edit)),
                   ),
                 );
               },

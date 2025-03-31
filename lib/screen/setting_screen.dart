@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project/screen/home_screen.dart';
+import 'package:project/screen/goal_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 import 'change_password_screen.dart'; // Import หน้าเปลี่ยนรหัสผ่าน
 
@@ -45,6 +45,16 @@ class _SettingScreenState extends State<SettingScreen> {
             ),
           ),
           const Divider(),
+
+          // ✅ เปลี่ยนชื่อ
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text("Change Name"),
+            onTap: () {
+              _showChangeNameDialog(context);
+            },
+          ),
+
           // ✅ เปลี่ยน username
           ListTile(
             leading: const Icon(Icons.account_circle),
@@ -59,9 +69,23 @@ class _SettingScreenState extends State<SettingScreen> {
             leading: const Icon(Icons.lock),
             title: const Text("Change Password"),
             onTap: () {
-            _showChangePasswordDialog(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ChangePasswordScreen()),
+              );
             },
           ),
+
+          // ✅ เกี่ยวกับเรา
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text("About Us"),
+            onTap: () {
+              _showAboutDialog(context);
+            },
+          ),
+
           // ✅ ออกจากระบบ
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
@@ -89,73 +113,37 @@ class _SettingScreenState extends State<SettingScreen> {
     );
   }
 
-  void _showChangePasswordDialog(BuildContext context) {
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Change Password"),
-        content: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: "Enter new password"),
-                keyboardType: TextInputType.number,
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter a password";
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _confirmPasswordController,
-                decoration: const InputDecoration(labelText: "Confirm password"),
-                keyboardType: TextInputType.number,
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please confirm your password";
-                  }
-                  if (value != _passwordController.text) {
-                    return "Passwords do not match";
-                  }
-                  return null;
-                },
-              ),
-            ],
+  // ✅ แสดง Dialog เปลี่ยนชื่อ
+  void _showChangeNameDialog(BuildContext context) {
+    final TextEditingController _nameController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Change Name"),
+          content: TextField(
+            controller: _nameController,
+            decoration: const InputDecoration(labelText: "Enter new name"),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              if (_formKey.currentState?.validate() ?? false) {
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Password changed successfully")),
+                  SnackBar(content: Text("Name changed to: ${_nameController.text}")),
                 );
-              }
-            },
-            child: const Text("Save"),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // ✅ แสดง Dialog เปลี่ยน username
   void _showChangeUsernameDialog(BuildContext context) {

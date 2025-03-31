@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Addgoal extends StatefulWidget {
+class EditGoal extends StatefulWidget {
   final Function(String title, String description, String time) onSaveGoal;
 
-  const Addgoal({super.key, required this.onSaveGoal});
+  const EditGoal({super.key, required this.onSaveGoal});
 
   @override
-  _AddgoalState createState() => _AddgoalState();
+  _EditGoalState createState() => _EditGoalState();
 }
 
-class _AddgoalState extends State<Addgoal> {
+class _EditGoalState extends State<EditGoal> {
   final TextEditingController _goalTitleController = TextEditingController();
   final TextEditingController _goalDescriptionController =
       TextEditingController();
@@ -30,7 +30,7 @@ class _AddgoalState extends State<Addgoal> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   CupertinoButton(
-                    child: const Text('Cancel',
+                    child: const Text('Delete',
                         style: TextStyle(fontFamily: 'Dana')),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
@@ -87,7 +87,18 @@ class _AddgoalState extends State<Addgoal> {
         _selectedTime != null;
 
     return AlertDialog(
-      title: const Text('Add Goal'),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Add Goal'),
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -103,7 +114,7 @@ class _AddgoalState extends State<Addgoal> {
           Row(
             children: [
               const Text("Selected Time: "),
-              OutlinedButton(
+              FloatingActionButton(
                 onPressed: _pickTime,
                 child: Text(_formatTime()),
               ),
@@ -117,19 +128,15 @@ class _AddgoalState extends State<Addgoal> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: const Text(
+            'Delete',
+            style: TextStyle(color: Colors.red),
+          ),
         ),
         TextButton(
-          onPressed: isFormValid
-              ? () {
-                  widget.onSaveGoal(
-                    _goalTitleController.text,
-                    _goalDescriptionController.text,
-                    _formatTime(), // แปลงเวลาเป็น String HH:mm
-                  );
-                  Navigator.of(context).pop();
-                }
-              : null,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
           child: const Text('Save'),
         ),
       ],
