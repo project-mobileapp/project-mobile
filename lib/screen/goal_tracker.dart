@@ -16,12 +16,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.amber[50], 
+      backgroundColor: Colors.amber[50],
       appBar: AppBar(
-        title: const Text('Goal Tracker🏆'),
+        title: const Text('Tracker🏆'),
         centerTitle: true,
-        backgroundColor: Colors.amber[700], 
-        foregroundColor: Colors.white, 
+        backgroundColor: Colors.amber[700],
+        foregroundColor: Colors.white,
         elevation: 0, // ทำให้ AppBar ดูเรียบ
       ),
       body: Center(
@@ -70,7 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 spacing: 10,
               ),
             ),
-            const SizedBox(height: 20), 
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -121,12 +121,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber[700], 
+                backgroundColor: Colors.amber[700],
               ),
               child: const Text(
                 'Get Started',
-                style: TextStyle(
-                    color: Colors.white), 
+                style: TextStyle(color: Colors.white),
               ),
             )
         ],
