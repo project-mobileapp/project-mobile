@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:project/screen/setting_screen.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'Addgoal.dart';
 import 'package:project/popup/edit_goal.dart';
 
@@ -47,8 +49,48 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
+  void _showQrCodeDialog(
+      BuildContext context, String title, String description, String time) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('QR Code'),
+          content: Container(
+            width: 250.0, // กำหนดความกว้างของ QR Code
+            height: 250.0, // กำหนดความสูงของ QR Code
+            child: QrImageView(
+              data:
+                  '{"title": "$title", "description": "$description", "time": "$time"}',
+              version: QrVersions.auto,
+              size: 200.0, // ขนาดของ QR Code
+              backgroundColor: Colors.white, // พื้นหลังของ QR Code
+              foregroundColor: Colors.black, // สีของ QR Code
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.white,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Goal Tracking🏆'),
@@ -69,16 +111,34 @@ class _MainScreenState extends State<MainScreen>
                     subtitle: Text(
                       '${goals[index]['description']} \nTime: ${goals[index]['time']} hr',
                     ),
-                    trailing: IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return EditGoal(onSaveGoal: _saveGoal);
-                            },
-                          );
-                        },
-                        icon: Icon(Icons.edit)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return EditGoal(onSaveGoal: _saveGoal);
+                              },
+                            );
+                          },
+                          icon: Icon(Icons.edit),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            // เรียกใช้ฟังก์ชันแสดง QR Code ที่นี่
+                            _showQrCodeDialog(
+                              context,
+                              goals[index]['title']!,
+                              goals[index]['description']!,
+                              goals[index]['time']!,
+                            );
+                          },
+                          icon: Icon(Icons.qr_code), // ใช้ไอคอน QR Code
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
