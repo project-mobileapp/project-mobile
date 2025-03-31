@@ -27,10 +27,6 @@ class _SettingScreenState extends State<SettingScreen> {
             color: Colors.amber[100],
             child: Row(
               children: [
-                const CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage('assets/images/profile.png'),
-                ),
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
