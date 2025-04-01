@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Addgoal extends StatefulWidget {
-  final Function(String title, String description, String time) onSaveGoal;
-
-  const Addgoal({super.key, required this.onSaveGoal});
+  const Addgoal({super.key});
 
   @override
   _AddgoalState createState() => _AddgoalState();
@@ -12,9 +11,8 @@ class Addgoal extends StatefulWidget {
 
 class _AddgoalState extends State<Addgoal> {
   final TextEditingController _goalTitleController = TextEditingController();
-  final TextEditingController _goalDescriptionController =
-      TextEditingController();
-  TimeOfDay? _selectedTime = TimeOfDay(hour: 0, minute: 0); // ค่าเริ่มต้น 00:00
+  final TextEditingController _goalDescriptionController = TextEditingController();
+  TimeOfDay? _selectedTime = TimeOfDay(hour: 0, minute: 0);
 
   Future<void> _pickTime() async {
     TimeOfDay? pickedTime = await showCupertinoModalPopup<TimeOfDay>(
@@ -30,13 +28,11 @@ class _AddgoalState extends State<Addgoal> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   CupertinoButton(
-                    child: const Text('Cancel',
-                        style: TextStyle(fontFamily: 'Dana')),
+                    child: const Text('Cancel'),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   CupertinoButton(
-                    child: const Text('Save',
-                        style: TextStyle(fontFamily: 'Dana')),
+                    child: const Text('Save'),
                     onPressed: () {
                       Navigator.of(context).pop(tempPickedTime);
                     },
@@ -46,7 +42,7 @@ class _AddgoalState extends State<Addgoal> {
               const Divider(height: 0, thickness: 1),
               Expanded(
                 child: CupertinoTimerPicker(
-                  mode: CupertinoTimerPickerMode.hm, // เลือกแค่ ชั่วโมง:นาที
+                  mode: CupertinoTimerPickerMode.hm,
                   initialTimerDuration: Duration(
                     hours: _selectedTime!.hour,
                     minutes: _selectedTime!.minute,
@@ -72,20 +68,43 @@ class _AddgoalState extends State<Addgoal> {
     }
   }
 
-  /// แปลงเวลาให้เป็นรูปแบบ HH:mm (ตัด AM/PM)
   String _formatTime() {
     String hour = _selectedTime!.hour.toString().padLeft(2, '0');
     String minute = _selectedTime!.minute.toString().padLeft(2, '0');
     return "$hour:$minute";
   }
 
+  Future<void> _saveGoalToFirebase() async {
+    String title = _goalTitleController.text.trim();
+    String description = _goalDescriptionController.text.trim();
+    String time = _formatTime();
+
+    if (title.isEmpty || description.isEmpty || _selectedTime == null) {
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance.collection('goals').add({
+        'title': title,
+        'description': description,
+        'time': time,
+        'created_at': FieldValue.serverTimestamp(), // บันทึกเวลาที่สร้าง
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Goal saved successfully!')),
+      );
+
+      Navigator.of(context).pop();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // เช็คเงื่อนไขว่ากรอกครบหรือยัง
-    bool isFormValid = _goalTitleController.text.isNotEmpty &&
-        _goalDescriptionController.text.isNotEmpty &&
-        _selectedTime != null;
-
     return AlertDialog(
       title: const Text('Add Goal'),
       content: Column(
@@ -120,20 +139,10 @@ class _AddgoalState extends State<Addgoal> {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: isFormValid
-              ? () {
-                  widget.onSaveGoal(
-                    _goalTitleController.text,
-                    _goalDescriptionController.text,
-                    _formatTime(), // แปลงเวลาเป็น String HH:mm
-                  );
-                  Navigator.of(context).pop();
-                }
-              : null,
+          onPressed: _saveGoalToFirebase, // เรียกฟังก์ชันบันทึก Firebase
           child: const Text('Save'),
         ),
       ],
     );
   }
 }
-//

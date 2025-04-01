@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:project/screen/setting_screen.dart';
@@ -56,12 +57,12 @@ class _MainScreenState extends State<MainScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('QR Code'),
-          content: Container(
+          content: SizedBox(
             width: 250.0, // กำหนดความกว้างของ QR Code
             height: 250.0, // กำหนดความสูงของ QR Code
             child: QrImageView(
               data:
-                  '{"title": "$title", "description": "$description", "time": "$time"}',
+                  'หัวข้อ: $title\nคำอธิบาย: $description\nเวลา: $time ชั่วโมง',
               version: QrVersions.auto,
               size: 200.0, // ขนาดของ QR Code
               backgroundColor: Colors.white, // พื้นหลังของ QR Code
@@ -97,52 +98,46 @@ class _MainScreenState extends State<MainScreen>
         backgroundColor: Colors.amber[700],
         foregroundColor: Colors.white,
       ),
-      body: goals.isEmpty
-          ? const Center(child: Text('No goals added yet!'))
-          : ListView.builder(
-              itemCount: goals.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: const EdgeInsets.all(8),
-                  child: ListTile(
-                    title: Text(
-                      goals[index]['title']!,
-                    ),
-                    subtitle: Text(
-                      '${goals[index]['description']} \nTime: ${goals[index]['time']} hr',
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return EditGoal(onSaveGoal: _saveGoal);
-                              },
-                            );
-                          },
-                          icon: Icon(Icons.edit),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            // เรียกใช้ฟังก์ชันแสดง QR Code ที่นี่
-                            _showQrCodeDialog(
-                              context,
-                              goals[index]['title']!,
-                              goals[index]['description']!,
-                              goals[index]['time']!,
-                            );
-                          },
-                          icon: Icon(Icons.qr_code), // ใช้ไอคอน QR Code
-                        ),
-                      ],
-                    ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('goals')
+            .orderBy('created_at', descending: true)
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No goals added yet!'));
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              var goal = snapshot.data!.docs[index];
+              return Card(
+                margin: const EdgeInsets.all(8),
+                child: ListTile(
+                  title: Text(goal['title']),
+                  subtitle:
+                      Text('${goal['description']} \nTime: ${goal['time']} hr'),
+                  trailing: IconButton(
+                    onPressed: () {
+                      _showQrCodeDialog(
+                        context,
+                        goal['title'],
+                        goal['description'],
+                        goal['time'],
+                      );
+                    },
+                    icon: const Icon(Icons.qr_code),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
+          );
+        },
+      ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -153,7 +148,7 @@ class _MainScreenState extends State<MainScreen>
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return Addgoal(onSaveGoal: _saveGoal);
+                    return Addgoal(); // ✅ เรียกใช้งานโดยไม่ต้องส่ง onSaveGoal
                   },
                 );
               },
@@ -173,8 +168,7 @@ class _MainScreenState extends State<MainScreen>
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>SettingScreen()),
+                  MaterialPageRoute(builder: (context) => SettingScreen()),
                 );
               },
               backgroundColor: Colors.amber[700],
