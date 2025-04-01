@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +38,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           if (snapshot.connectionState == ConnectionState.done) {
             return Scaffold(
-                appBar: AppBar(title: Text('สร้างบัญชีผู้ใช้')),
+                appBar: AppBar(
+                  title: Text(''),
+                  backgroundColor: Colors.amber[700],
+                  foregroundColor: Colors.black,
+                ),
                 body: Container(
                   padding: const EdgeInsets.all(20),
                   child: Form(
@@ -48,7 +51,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('อีเมล', style: TextStyle(fontSize: 20)),
+                            SizedBox(height: 200),
+                            Center(
+                              child: Text(
+                                'Register',
+                                style: TextStyle(fontSize: 50),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            SizedBox(height: 50),
+                            Text('Email', style: TextStyle(fontSize: 20)),
                             TextFormField(
                               validator: MultiValidator([
                                 RequiredValidator(errorText: 'กรุณาป้อนอีเมล'),
@@ -61,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               },
                             ),
                             SizedBox(height: 15),
-                            Text('รหัสผ่าน', style: TextStyle(fontSize: 20)),
+                            Text('Password', style: TextStyle(fontSize: 20)),
                             TextFormField(
                                 obscureText: true,
                                 validator: RequiredValidator(
@@ -69,6 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 onSaved: (password) {
                                   profile.password = password;
                                 }),
+                            SizedBox(height: 50),
                             SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
@@ -107,10 +120,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         }
                                       }
                                     },
-                                    icon: Icon(Icons.app_registration_rounded),
+                                    icon: Icon(Icons.app_registration_rounded,
+                                        color: Colors.black), // ไอคอนสีดำ
                                     label: Text(
-                                      'ลงทะเบียน',
-                                      style: TextStyle(fontSize: 20),
+                                      'Register',
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.black),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Colors.amber[700], // กำหนดสีพื้นหลัง
                                     )))
                           ],
                         ),

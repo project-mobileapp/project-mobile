@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +38,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
           if (snapshot.connectionState == ConnectionState.done) {
             return Scaffold(
-                appBar: AppBar(title: Text('หน้า Login')),
+                appBar: AppBar(
+                  title: Text(''),
+                  backgroundColor: Colors.amber[700],
+                  foregroundColor: Colors.black,
+                ),
                 body: Container(
                   padding: const EdgeInsets.all(20),
                   child: Form(
@@ -48,7 +51,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('อีเมล', style: TextStyle(fontSize: 20)),
+                             SizedBox(height: 200),
+                            Center(
+                              child: Text(
+                                'Login',
+                                style: TextStyle(fontSize: 50),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            SizedBox(height: 50),
+                            Text('Email', style: TextStyle(fontSize: 20)),
                             TextFormField(
                               validator: MultiValidator([
                                 RequiredValidator(errorText: 'กรุณาป้อนอีเมล'),
@@ -61,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                             ),
                             SizedBox(height: 15),
-                            Text('รหัสผ่าน', style: TextStyle(fontSize: 20)),
+                            Text('Password', style: TextStyle(fontSize: 20)),
                             TextFormField(
                                 obscureText: true,
                                 validator: RequiredValidator(
@@ -69,40 +81,46 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onSaved: (password) {
                                   profile.password = password;
                                 }),
+                                SizedBox(height: 50),
                             SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                    onPressed: () async {
-                                      if (formKey.currentState!.validate()) {
-                                        formKey.currentState!.save();
-                                        try {
-                                          await FirebaseAuth.instance
-                                              .signInWithEmailAndPassword(
-                                                  email:
-                                                      profile.email.toString(),
-                                                  password: profile.password
-                                                      .toString())
-                                              .then((value) {
-                                            formKey.currentState!.reset();
-                                            Fluttertoast.showToast(
-                                                msg: 'Login สำเร็จ');
-                                            Navigator.pushReplacement(context,
-                                                MaterialPageRoute(
-                                                    builder: (context) {
-                                              return MainScreen();
-                                            }));
-                                          });
-                                        } on FirebaseAuthException catch (e) {
-                                          Fluttertoast.showToast(
-                                              msg: e.message.toString());
-                                        }
-                                      }
-                                    },
-                                    icon: Icon(Icons.app_registration_rounded),
-                                    label: Text(
-                                      'ลงทะเบียน',
-                                      style: TextStyle(fontSize: 20),
-                                    )))
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  if (formKey.currentState!.validate()) {
+                                    formKey.currentState!.save();
+                                    try {
+                                      await FirebaseAuth.instance
+                                          .signInWithEmailAndPassword(
+                                              email: profile.email.toString(),
+                                              password:
+                                                  profile.password.toString())
+                                          .then((value) {
+                                        formKey.currentState!.reset();
+                                        Fluttertoast.showToast(
+                                            msg: 'Login สำเร็จ');
+                                        Navigator.pushReplacement(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return MainScreen();
+                                        }));
+                                      });
+                                    } on FirebaseAuthException catch (e) {
+                                      Fluttertoast.showToast(
+                                          msg: e.message.toString());
+                                    }
+                                  }
+                                },
+                                icon: Icon(Icons.app_registration_rounded, 
+                                    color: Colors.black), // ไอคอนสีขาว
+                                label: Text('Login',
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.black)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Colors.amber[700], // กำหนดสีพื้นหลัง
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       )),
