@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:project/screen/home.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'login_screen.dart';
+
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -117,7 +118,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 // เมื่อผู้ใช้ไปถึงหน้าสุดท้าย ให้ไปที่ LoginScreen
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
                 );
               },
               style: ElevatedButton.styleFrom(

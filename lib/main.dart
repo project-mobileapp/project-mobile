@@ -1,18 +1,10 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:project/screen/goal_tracker.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: FirebaseOptions(
-          apiKey: "AIzaSyDHxt6mOyBexwBluBBnWY-OEWiWcMcFkt8",
-          authDomain: "gold-gold-3a89f.firebaseapp.com",
-          projectId: "gold-gold-3a89f",
-          storageBucket: "gold-gold-3a89f.firebasestorage.app",
-          messagingSenderId: "64206464929",
-          appId: "1:64206464929:web:0023767a9f197a27b1cde0",
-          measurementId: "G-NZRL07K7B6"));
+
+import 'screen/login.dart';
+
+void main() {
   runApp(const MyApp());
 }
 
@@ -24,12 +16,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      home:
-          const OnboardingScreen(), // เปลี่ยนจาก HomeScreen เป็น OnboardingScreen
+      home: const MyHomePage(title: 'Flutter'),
       debugShowCheckedModeBanner: false,
     );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return OnboardingScreen();
   }
 }

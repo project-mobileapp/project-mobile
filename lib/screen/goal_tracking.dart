@@ -174,7 +174,7 @@ class _MainScreenState extends State<MainScreen>
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const SettingScreen()),
+                      builder: (context) =>SettingScreen()),
                 );
               },
               backgroundColor: Colors.amber[700],
