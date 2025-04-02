@@ -23,7 +23,8 @@ class _CountdownScreenState extends State<CountdownScreen> {
   Timer? _timer;
   bool _isFinished = false;
   bool _showRating = false;
-  bool _isStarted = false; // เพิ่มตัวแปรควบคุมการเริ่ม
+  bool _isStarted = false; // ตัวแปรควบคุมการเริ่มต้น
+  bool _isPaused = false;  // ตัวแปรควบคุมการหยุดพัก
   double _rating = 0;
 
   @override
@@ -38,9 +39,11 @@ class _CountdownScreenState extends State<CountdownScreen> {
     super.dispose();
   }
 
+  // ฟังก์ชันเริ่มนับถอยหลัง
   void _startCountdown() {
     setState(() {
       _isStarted = true; // เริ่มต้นนับถอยหลัง
+      _isPaused = false; // ลบการหยุดพัก
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -50,10 +53,9 @@ class _CountdownScreenState extends State<CountdownScreen> {
         });
       } else {
         setState(() {
-          _isFinished = true; // เวลาหมด แสดงพลุ
+          _isFinished = true;
         });
         _timer?.cancel();
-        // เริ่มให้คะแนนหลังจากเวลาหมดไป 3 วินาที
         Future.delayed(const Duration(seconds: 3), () {
           setState(() {
             _showRating = true; // แสดงการให้คะแนน
@@ -63,6 +65,23 @@ class _CountdownScreenState extends State<CountdownScreen> {
     });
   }
 
+  // ฟังก์ชันหยุดนับถอยหลัง
+  void _pauseCountdown() {
+    setState(() {
+      _isPaused = true; // หยุดพัก
+      _timer?.cancel(); // หยุด Timer
+    });
+  }
+
+  // ฟังก์ชันนับต่อ
+  void _resumeCountdown() {
+    setState(() {
+      _isPaused = false;
+      _startCountdown(); // เริ่มนับถอยหลังต่อ
+    });
+  }
+
+  // ฟังก์ชันแปลงเวลาเป็นรูปแบบ "mm:ss"
   String _formatTime(int seconds) {
     int minutes = seconds ~/ 60;
     int secs = seconds % 60;
@@ -141,7 +160,9 @@ class _CountdownScreenState extends State<CountdownScreen> {
                           }),
                         ),
                         ElevatedButton(
-                          onPressed: _submitRating,
+                          onPressed: _rating > 0
+                              ? _submitRating
+                              : null, // ปิดปุ่มถ้าไม่ได้ให้คะแนน
                           child: const Text("ยืนยันการให้คะแนน"),
                         ),
                       ],
@@ -149,13 +170,43 @@ class _CountdownScreenState extends State<CountdownScreen> {
                 ],
               )
             : Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "เป้าหมาย: ${widget.goalTitle}",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        // ใช้ Column สำหรับการจัดเรียงในแนวตั้ง
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "ชื่อ: ${widget.goalTitle}",
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "อธิบาย: ${widget.goalDescription}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black54,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -170,16 +221,14 @@ class _CountdownScreenState extends State<CountdownScreen> {
                               ? (_remainingSeconds / widget.duration)
                               : 0,
                           strokeWidth: 10,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color.fromARGB(255, 255, 164, 46)),
+                          valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 255, 164, 46)),
                           backgroundColor: Colors.grey[300],
                         ),
                       ),
                       _isStarted
                           ? Text(
                               _formatTime(_remainingSeconds),
-                              style: const TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                             )
                           : ElevatedButton(
                               onPressed: _startCountdown,
@@ -193,6 +242,23 @@ class _CountdownScreenState extends State<CountdownScreen> {
                               ),
                             ),
                     ],
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _isStarted
+                        ? (_isPaused ? _resumeCountdown : _pauseCountdown)
+                        : null, // ปุ่มนี้จะทำงานเมื่อเริ่มนับถอยหลัง
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), backgroundColor: Colors.amber[700],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      _isPaused ? "นับต่อ" : "หยุดพัก",
+                      style: const TextStyle(fontSize: 18),
+                    ),
                   ),
                 ],
               ),
