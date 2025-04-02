@@ -97,13 +97,18 @@ class _CountdownScreenState extends State<CountdownScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.goalTitle)),
+      appBar: AppBar(
+        title: Text(widget.goalTitle),
+        backgroundColor: Colors.amber[700],
+        foregroundColor: Colors.white,
+      ),
       body: Center(
         child: _isFinished
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Lottie.asset('assets/animation/firework.json', width: 200, height: 200),
+                  Lottie.asset('assets/animation/firework.json',
+                      width: 200, height: 200),
                   const SizedBox(height: 20),
                   const Text(
                     "ยินดีด้วย คุณทำสำเร็จแล้ว!",
@@ -122,7 +127,9 @@ class _CountdownScreenState extends State<CountdownScreen> {
                           children: List.generate(5, (index) {
                             return IconButton(
                               icon: Icon(
-                                index < _rating ? Icons.star : Icons.star_border,
+                                index < _rating
+                                    ? Icons.star
+                                    : Icons.star_border,
                                 color: Colors.amber,
                               ),
                               onPressed: () {
@@ -146,7 +153,10 @@ class _CountdownScreenState extends State<CountdownScreen> {
                 children: [
                   Text(
                     "เป้าหมาย: ${widget.goalTitle}",
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Stack(
@@ -156,16 +166,20 @@ class _CountdownScreenState extends State<CountdownScreen> {
                         width: 150,
                         height: 150,
                         child: CircularProgressIndicator(
-                          value: _isStarted ? (_remainingSeconds / widget.duration) : 0,
+                          value: _isStarted
+                              ? (_remainingSeconds / widget.duration)
+                              : 0,
                           strokeWidth: 10,
-                          valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 255, 164, 46)),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color.fromARGB(255, 255, 164, 46)),
                           backgroundColor: Colors.grey[300],
                         ),
                       ),
                       _isStarted
                           ? Text(
                               _formatTime(_remainingSeconds),
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             )
                           : ElevatedButton(
                               onPressed: _startCountdown,

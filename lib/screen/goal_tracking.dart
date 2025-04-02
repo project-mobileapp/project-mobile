@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:project/screen/countdown_screen.dart';
+import 'package:project/screen/finished_tasks.dart';
 import 'package:project/screen/setting_screen.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'Addgoal.dart';
@@ -73,7 +74,7 @@ class _MainScreenState extends State<MainScreen>
               version: QrVersions.auto,
               size: 200.0, // ขนาดของ QR Code
               backgroundColor: Colors.white, // พื้นหลังของ QR Code
-              foregroundColor: Colors.black, // สีของ QR Code
+              foregroundColor: Colors.white, // สีของ QR Code
             ),
           ),
           actions: [
@@ -103,7 +104,7 @@ class _MainScreenState extends State<MainScreen>
       appBar: AppBar(
         title: const Text('Goal Tracking🏆'),
         backgroundColor: Colors.amber[700],
-        foregroundColor: const Color.fromARGB(255, 255, 222, 133),
+        foregroundColor: Colors.white,
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
@@ -193,7 +194,19 @@ class _MainScreenState extends State<MainScreen>
                 );
               },
               backgroundColor: Colors.amber[700],
-              child: const Icon(Icons.playlist_add),
+              child: const Icon(Icons.add_task),
+            ),
+            const SizedBox(height: 10),
+             FloatingActionButton(
+              heroTag: "btn3",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>FinishedTasksScreen()),
+                );
+              },
+              backgroundColor: Colors.amber[700],
+              child: const Icon(Icons.task_alt),
             ),
             const SizedBox(height: 10),
             FloatingActionButton(
