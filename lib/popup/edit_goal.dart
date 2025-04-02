@@ -50,9 +50,51 @@ class _EditGoalState extends State<EditGoal> {
   }
 
   Future<void> _pickTime() async {
-    TimeOfDay? pickedTime = await showTimePicker(
+    TimeOfDay tempPickedTime = _selectedTime;
+
+    TimeOfDay? pickedTime = await showCupertinoModalPopup<TimeOfDay>(
       context: context,
-      initialTime: _selectedTime,
+      builder: (context) {
+        return Container(
+          height: 250,
+          color: Colors.white,
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  CupertinoButton(
+                    child: const Text('Cancel'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  CupertinoButton(
+                    child: const Text('Save'),
+                    onPressed: () {
+                      Navigator.of(context).pop(tempPickedTime);
+                    },
+                  ),
+                ],
+              ),
+              const Divider(height: 0, thickness: 1),
+              Expanded(
+                child: CupertinoTimerPicker(
+                  mode: CupertinoTimerPickerMode.hm,
+                  initialTimerDuration: Duration(
+                    hours: _selectedTime.hour,
+                    minutes: _selectedTime.minute,
+                  ),
+                  onTimerDurationChanged: (Duration newDuration) {
+                    tempPickedTime = TimeOfDay(
+                      hour: newDuration.inHours,
+                      minute: newDuration.inMinutes % 60,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
 
     if (pickedTime != null) {
