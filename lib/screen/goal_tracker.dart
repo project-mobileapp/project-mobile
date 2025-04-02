@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:project/screen/home.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -101,14 +100,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Color.fromARGB(221, 0, 0, 0),
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 15),
           Text(
             description,
-            style: const TextStyle(fontSize: 16, color: Colors.black87),
+            style: const TextStyle(
+                fontSize: 16, color: Color.fromARGB(221, 0, 0, 0)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 40),
@@ -126,7 +126,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
               child: const Text(
                 'Get Started',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
               ),
             )
         ],

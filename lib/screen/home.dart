@@ -8,9 +8,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.amber[50],
       appBar: AppBar(
         title: Text('Goal Tracker🏆'),
         backgroundColor: Colors.amber[700],
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
@@ -34,10 +36,14 @@ class HomeScreen extends StatelessWidget {
                       return LoginScreen();
                     }));
                   },
-                  icon: Icon(Icons.login, color: Colors.black), // ไอคอนสีขาว
+                  icon: Icon(Icons.login,
+                      color: const Color.fromARGB(
+                          255, 255, 255, 255)), // ไอคอนสีขาว
                   label: Text("Login",
                       style: TextStyle(
-                          fontSize: 20, color: Colors.black)), // ตัวหนังสือสีขาว
+                          fontSize: 20,
+                          color: const Color.fromARGB(
+                              255, 255, 255, 255))), // ตัวหนังสือสีขาว
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber[700], // กำหนดสีพื้นหลัง
                   ),
@@ -55,11 +61,15 @@ class HomeScreen extends StatelessWidget {
                       return RegisterScreen();
                     }));
                   },
-                  icon: Icon(Icons.add, color: Colors.black), // ไอคอนสีขาว
+                  icon: Icon(Icons.add,
+                      color: const Color.fromARGB(
+                          255, 255, 255, 255)), // ไอคอนสีขาว
                   label: Text(
                     'Register',
                     style: TextStyle(
-                        fontSize: 20, color: Colors.black), // ตัวหนังสือสีขาว
+                        fontSize: 20,
+                        color: const Color.fromARGB(
+                            255, 255, 255, 255)), // ตัวหนังสือสีขาว
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber[700], // กำหนดสีพื้นหลัง

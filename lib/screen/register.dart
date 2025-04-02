@@ -38,10 +38,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           if (snapshot.connectionState == ConnectionState.done) {
             return Scaffold(
+                backgroundColor: Colors.amber[50],
                 appBar: AppBar(
                   title: Text('Register'),
                   backgroundColor: Colors.amber[700],
-                  foregroundColor: Colors.black,
+                  foregroundColor: const Color.fromARGB(255, 255, 255, 255),
                 ),
                 body: Container(
                   padding: const EdgeInsets.all(20),
@@ -57,8 +58,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               width: 350,
                               height: 350,
                             ),
-                            Text('Email', style: TextStyle(fontSize: 20)),
                             TextFormField(
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                labelStyle: TextStyle(fontSize: 25),
+                              ),
                               validator: MultiValidator([
                                 RequiredValidator(errorText: 'กรุณาป้อนอีเมล'),
                                 EmailValidator(
@@ -70,8 +74,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               },
                             ),
                             SizedBox(height: 15),
-                            Text('Password', style: TextStyle(fontSize: 20)),
                             TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  labelStyle: TextStyle(fontSize: 25),
+                                ),
                                 obscureText: true,
                                 validator: RequiredValidator(
                                     errorText: 'กรุณาป้อนรหัสผ่าน'),
@@ -118,11 +125,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       }
                                     },
                                     icon: Icon(Icons.app_registration_rounded,
-                                        color: Colors.black), // ไอคอนสีดำ
+                                        color: const Color.fromARGB(
+                                            255, 255, 255, 255)), // ไอคอนสีดำ
                                     label: Text(
                                       'Register',
                                       style: TextStyle(
-                                          fontSize: 20, color: Colors.black),
+                                          fontSize: 20,
+                                          color: const Color.fromARGB(
+                                              255, 255, 255, 255)),
                                     ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor:
