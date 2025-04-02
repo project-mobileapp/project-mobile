@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project/screen/goal_tracker.dart';
 
-
 import 'screen/login.dart';
 
 void main() {

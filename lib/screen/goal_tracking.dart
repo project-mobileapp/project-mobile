@@ -96,7 +96,7 @@ class _MainScreenState extends State<MainScreen>
       appBar: AppBar(
         title: const Text('Goal Tracking🏆'),
         backgroundColor: Colors.amber[700],
-        foregroundColor: Colors.white,
+        foregroundColor: const Color.fromARGB(255, 255, 222, 133),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
@@ -121,16 +121,38 @@ class _MainScreenState extends State<MainScreen>
                   title: Text(goal['title']),
                   subtitle:
                       Text('${goal['description']} \nTime: ${goal['time']} hr'),
-                  trailing: IconButton(
-                    onPressed: () {
-                      _showQrCodeDialog(
-                        context,
-                        goal['title'],
-                        goal['description'],
-                        goal['time'],
-                      );
-                    },
-                    icon: const Icon(Icons.qr_code),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize
+                        .min, // สำคัญ! ป้องกันไม่ให้ Row ขยายเต็มพื้นที่
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          _showQrCodeDialog(
+                            context,
+                            goal['title'],
+                            goal['description'],
+                            goal['time'],
+                          );
+                        },
+                        icon: const Icon(Icons.qr_code),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return EditGoal(
+                                goalId: goal.id, // ✅ ส่งค่า goalId ไปแก้ไข
+                                currentTitle: goal['title'],
+                                currentDescription: goal['description'],
+                                currentTime: goal['time'],
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.edit),
+                      ),
+                    ],
                   ),
                 ),
               );

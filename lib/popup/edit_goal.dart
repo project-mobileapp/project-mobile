@@ -1,68 +1,58 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditGoal extends StatefulWidget {
-  final Function(String title, String description, String time) onSaveGoal;
+  final String goalId;
+  final String currentTitle;
+  final String currentDescription;
+  final String currentTime;
 
-  const EditGoal({super.key, required this.onSaveGoal});
+  const EditGoal({
+    Key? key,
+    required this.goalId,
+    required this.currentTitle,
+    required this.currentDescription,
+    required this.currentTime,
+  }) : super(key: key);
 
   @override
   _EditGoalState createState() => _EditGoalState();
 }
 
 class _EditGoalState extends State<EditGoal> {
-  final TextEditingController _goalTitleController = TextEditingController();
-  final TextEditingController _goalDescriptionController =
-      TextEditingController();
-  TimeOfDay? _selectedTime = TimeOfDay(hour: 0, minute: 0); // ค่าเริ่มต้น 00:00
+  late TextEditingController _goalTitleController;
+  late TextEditingController _goalDescriptionController;
+  late TimeOfDay _selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _goalTitleController = TextEditingController(text: widget.currentTitle);
+    _goalDescriptionController =
+        TextEditingController(text: widget.currentDescription);
+    _selectedTime =
+        _parseTime(widget.currentTime); // แปลงเวลาจาก String เป็น TimeOfDay
+  }
+
+  @override
+  void dispose() {
+    _goalTitleController.dispose();
+    _goalDescriptionController.dispose();
+    super.dispose();
+  }
+
+  TimeOfDay _parseTime(String time) {
+    List<String> parts = time.split(':');
+    int hour = int.parse(parts[0]);
+    int minute = int.parse(parts[1]);
+    return TimeOfDay(hour: hour, minute: minute);
+  }
 
   Future<void> _pickTime() async {
-    TimeOfDay? pickedTime = await showCupertinoModalPopup<TimeOfDay>(
+    TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      builder: (context) {
-        TimeOfDay tempPickedTime = _selectedTime!;
-        return Container(
-          height: 250,
-          color: Colors.white,
-          child: Column(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  CupertinoButton(
-                    child: const Text('Delete',
-                        style: TextStyle(fontFamily: 'Dana')),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  CupertinoButton(
-                    child: const Text('Save',
-                        style: TextStyle(fontFamily: 'Dana')),
-                    onPressed: () {
-                      Navigator.of(context).pop(tempPickedTime);
-                    },
-                  ),
-                ],
-              ),
-              const Divider(height: 0, thickness: 1),
-              Expanded(
-                child: CupertinoTimerPicker(
-                  mode: CupertinoTimerPickerMode.hm, // เลือกแค่ ชั่วโมง:นาที
-                  initialTimerDuration: Duration(
-                    hours: _selectedTime!.hour,
-                    minutes: _selectedTime!.minute,
-                  ),
-                  onTimerDurationChanged: (Duration newDuration) {
-                    tempPickedTime = TimeOfDay(
-                      hour: newDuration.inHours,
-                      minute: newDuration.inMinutes % 60,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+      initialTime: _selectedTime,
     );
 
     if (pickedTime != null) {
@@ -72,33 +62,66 @@ class _EditGoalState extends State<EditGoal> {
     }
   }
 
-  /// แปลงเวลาให้เป็นรูปแบบ HH:mm (ตัด AM/PM)
   String _formatTime() {
-    String hour = _selectedTime!.hour.toString().padLeft(2, '0');
-    String minute = _selectedTime!.minute.toString().padLeft(2, '0');
+    String hour = _selectedTime.hour.toString().padLeft(2, '0');
+    String minute = _selectedTime.minute.toString().padLeft(2, '0');
     return "$hour:$minute";
+  }
+
+  Future<void> _updateGoalToFirebase() async {
+    String title = _goalTitleController.text.trim();
+    String description = _goalDescriptionController.text.trim();
+    String time = _formatTime();
+
+    if (title.isEmpty || description.isEmpty) {
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('goals')
+          .doc(widget.goalId)
+          .update({
+        'title': title,
+        'description': description,
+        'time': time,
+        'updated_at': FieldValue.serverTimestamp(), // อัปเดตเวลาที่แก้ไข
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Goal updated successfully!')),
+      );
+
+      Navigator.of(context).pop();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteGoalFromFirebase() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('goals')
+          .doc(widget.goalId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Goal deleted successfully!')),
+      );
+
+      Navigator.of(context).pop();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // เช็คเงื่อนไขว่ากรอกครบหรือยัง
-    bool isFormValid = _goalTitleController.text.isNotEmpty &&
-        _goalDescriptionController.text.isNotEmpty &&
-        _selectedTime != null;
-
     return AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text('Add Goal'),
-          IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
+      title: const Text('Edit Goal'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -114,7 +137,7 @@ class _EditGoalState extends State<EditGoal> {
           Row(
             children: [
               const Text("Selected Time: "),
-              FloatingActionButton(
+              OutlinedButton(
                 onPressed: _pickTime,
                 child: Text(_formatTime()),
               ),
@@ -128,19 +151,17 @@ class _EditGoalState extends State<EditGoal> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text(
-            'Delete',
-            style: TextStyle(color: Colors.red),
-          ),
+          child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: _updateGoalToFirebase,
           child: const Text('Save'),
+        ),
+        TextButton(
+          onPressed: _deleteGoalFromFirebase,
+          child: const Text('Delete', style: TextStyle(color: Colors.red)),
         ),
       ],
     );
   }
 }
-//
