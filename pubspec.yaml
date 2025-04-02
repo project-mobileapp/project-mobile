@@ -46,6 +46,8 @@ dependencies:
   cloud_firestore: ^5.6.6
   form_field_validator: ^1.1.0
   fluttertoast: ^8.2.12
+  rive: ^0.13.20
+  flare_flutter: ^3.0.1
 
 dev_dependencies:
   flutter_test:

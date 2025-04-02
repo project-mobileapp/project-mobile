@@ -2,8 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:project/screen/login.dart';
 import 'package:project/screen/register.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoggingIn = false;
+  bool _isRegistering = false;
+
+  void _login() {
+    setState(() {
+      _isLoggingIn = true;
+    });
+    // Simulating a login process with a delay
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        _isLoggingIn = false;
+      });
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    });
+  }
+
+  void _register() {
+    setState(() {
+      _isRegistering = true;
+    });
+    // Simulating a registration process with a delay
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        _isRegistering = false;
+      });
+      Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,29 +57,29 @@ class HomeScreen extends StatelessWidget {
                 height: 100,
               ),
               Image.asset(
-                'images/2.jpg', // แก้ไขพาธตามไฟล์ที่ใช้งาน
+                'images/2.jpg', // Update the image path as needed
                 width: 350,
                 height: 350,
               ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return LoginScreen();
-                    }));
-                  },
-                  icon: Icon(Icons.login,
-                      color: const Color.fromARGB(
-                          255, 255, 255, 255)), // ไอคอนสีขาว
-                  label: Text("Login",
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: const Color.fromARGB(
-                              255, 255, 255, 255))), // ตัวหนังสือสีขาว
+                  onPressed: _isLoggingIn ? null : _login,
+                  icon: _isLoggingIn
+                      ? CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                      : Icon(Icons.login, color: Colors.white),
+                  label: Text(
+                    _isLoggingIn ? 'Logging In...' : 'Login',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber[700], // กำหนดสีพื้นหลัง
+                    backgroundColor: Colors.amber[700],
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
                 ),
               ),
@@ -55,24 +89,22 @@ class HomeScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return RegisterScreen();
-                    }));
-                  },
-                  icon: Icon(Icons.person_add,
-                      color: const Color.fromARGB(
-                          255, 255, 255, 255)), // ไอคอนสีขาว
+                  onPressed: _isRegistering ? null : _register,
+                  icon: _isRegistering
+                      ? CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                      : Icon(Icons.person_add, color: Colors.white),
                   label: Text(
-                    'Register',
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: const Color.fromARGB(
-                            255, 255, 255, 255)), // ตัวหนังสือสีขาว
+                    _isRegistering ? 'Registering...' : 'Register',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber[700], // กำหนดสีพื้นหลัง
+                    backgroundColor: Colors.amber[700],
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
                 ),
               ),

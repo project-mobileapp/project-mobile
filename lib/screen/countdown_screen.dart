@@ -24,8 +24,9 @@ class _CountdownScreenState extends State<CountdownScreen> {
   bool _isFinished = false;
   bool _showRating = false;
   bool _isStarted = false; // ตัวแปรควบคุมการเริ่มต้น
-  bool _isPaused = false;  // ตัวแปรควบคุมการหยุดพัก
+  bool _isPaused = false; // ตัวแปรควบคุมการหยุดพัก
   double _rating = 0;
+  bool _showFinishAnimation = false; // เพิ่มสถานะสำหรับอนิเมชัน finish.json
 
   @override
   void initState() {
@@ -54,6 +55,7 @@ class _CountdownScreenState extends State<CountdownScreen> {
       } else {
         setState(() {
           _isFinished = true;
+          _showFinishAnimation = true; // แสดงอนิเมชัน finish.json
         });
         _timer?.cancel();
         Future.delayed(const Duration(seconds: 3), () {
@@ -126,47 +128,71 @@ class _CountdownScreenState extends State<CountdownScreen> {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Lottie.asset('assets/animation/firework.json',
-                      width: 200, height: 200),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "ยินดีด้วย คุณทำสำเร็จแล้ว!",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  // ใช้ Stack เพื่อซ้อนอนิเมชันกับข้อความ
+                  Stack(
+                    alignment: Alignment.center, // จัดให้ทุกอย่างอยู่กลาง
+                    children: [
+                      // อนิเมชันพลุ (firework)
+                      Lottie.asset(
+                        'assets/animation/firework.json',
+                        height: MediaQuery.of(context).size.height * 0.4,
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.cover, // ให้แสดงพอดีกับขนาดหน้าจอ
+                      ),
+                      // ข้อความ "ยินดีด้วย!"
+                      const Text(
+                        "ยินดีด้วย คุณทำสำเร็จแล้ว!",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black, // เพิ่มสีให้ข้อความโดดเด่นขึ้น
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  if (_showRating)
-                    Column(
-                      children: [
-                        const Text(
-                          "ให้คะแนนตัวเอง:",
-                          style: TextStyle(fontSize: 20),
+                  const SizedBox(height: 20), // เพิ่มช่องว่างระหว่างข้อความกับส่วนถัดไป
+
+                  // การให้คะแนนตัวเอง
+                  const Text(
+                    "ให้คะแนนตัวเอง:",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < _rating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(5, (index) {
-                            return IconButton(
-                              icon: Icon(
-                                index < _rating
-                                    ? Icons.star
-                                    : Icons.star_border,
-                                color: Colors.amber,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _rating = index + 1.0;
-                                });
-                              },
-                            );
-                          }),
+                        onPressed: () {
+                          setState(() {
+                            _rating = index + 1.0;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 10), // ลดช่องว่างระหว่างการให้คะแนนกับปุ่ม
+
+                  ElevatedButton(
+                    onPressed: _rating > 0 ? _submitRating : null,
+                    child: const Text("ยืนยันการให้คะแนน"),
+                  ),
+                  if (_showFinishAnimation)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 0.1), // เพิ่มระยะห่างจากด้านบน
+                      child: Center(
+                        child: Lottie.asset(
+                          'assets/animation/finish.json', // เส้นทางไฟล์อนิเมชัน finish.json
+                          height: 200, // ขนาดอนิเมชัน
+                          width: 300, // ขนาดอนิเมชัน
+                          fit: BoxFit.cover, // ให้แสดงอย่างเหมาะสม
                         ),
-                        ElevatedButton(
-                          onPressed: _rating > 0
-                              ? _submitRating
-                              : null, // ปิดปุ่มถ้าไม่ได้ให้คะแนน
-                          child: const Text("ยืนยันการให้คะแนน"),
-                        ),
-                      ],
+                      ),
                     ),
+                  const SizedBox(height: 5), // ให้ช่องว่างระหว่างอนิเมชันและข้อความ
                 ],
               )
             : Column(
@@ -249,7 +275,8 @@ class _CountdownScreenState extends State<CountdownScreen> {
                         ? (_isPaused ? _resumeCountdown : _pauseCountdown)
                         : null, // ปุ่มนี้จะทำงานเมื่อเริ่มนับถอยหลัง
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), backgroundColor: Colors.amber[700],
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      backgroundColor: Colors.amber[700],
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -259,6 +286,14 @@ class _CountdownScreenState extends State<CountdownScreen> {
                       _isPaused ? "นับต่อ" : "หยุดพัก",
                       style: const TextStyle(fontSize: 18),
                     ),
+                  ),
+                  const SizedBox(height: 20),
+                  // เพิ่มอนิเมชัน som.json ตรงนี้
+                  Lottie.asset(
+                    'assets/animation/som.json', // เส้นทางไฟล์อนิเมชัน
+                    height: 150, // ขนาดอนิเมชัน
+                    width: 200, // ขนาดอนิเมชัน
+                    fit: BoxFit.cover, // ให้แสดงอย่างเหมาะสม
                   ),
                 ],
               ),
