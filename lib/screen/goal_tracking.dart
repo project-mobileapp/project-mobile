@@ -92,11 +92,13 @@ class _MainScreenState extends State<MainScreen>
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
+
     return Scaffold(
+      backgroundColor: Colors.amber[50],
       appBar: AppBar(
         title: const Text('Goal Tracking🏆'),
         backgroundColor: Colors.amber[700],
-        foregroundColor: const Color.fromARGB(255, 255, 222, 133),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance

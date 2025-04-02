@@ -45,16 +45,6 @@ class _SettingScreenState extends State<SettingScreen> {
             ),
           ),
           const Divider(),
-          // ✅ เปลี่ยน username
-          ListTile(
-            leading: const Icon(Icons.account_circle),
-            title: const Text("Change Username"),
-            onTap: () {
-              _showChangeUsernameDialog(context);
-            },
-          ),
-
-          // ✅ เปลี่ยนรหัสผ่าน
           ListTile(
             leading: const Icon(Icons.lock),
             title: const Text("Change Password"),
@@ -97,7 +87,8 @@ class _SettingScreenState extends State<SettingScreen> {
 
   void _showChangePasswordDialog(BuildContext context) {
     final TextEditingController _passwordController = TextEditingController();
-    final TextEditingController _confirmPasswordController = TextEditingController();
+    final TextEditingController _confirmPasswordController =
+        TextEditingController();
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -112,20 +103,24 @@ class _SettingScreenState extends State<SettingScreen> {
               children: [
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: "Enter new password"),
-                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Enter new password",
+                  ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Please enter a password";
+                    }
+                    if (value.length < 6) {
+                      return "Password must be at least 6 characters";
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _confirmPasswordController,
-                  decoration: const InputDecoration(labelText: "Confirm password"),
-                  keyboardType: TextInputType.number,
+                  decoration:
+                      const InputDecoration(labelText: "Confirm password"),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -146,12 +141,27 @@ class _SettingScreenState extends State<SettingScreen> {
               child: const Text("Cancel"),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState?.validate() ?? false) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Password changed successfully")),
-                  );
+                  try {
+                    User? user = FirebaseAuth.instance.currentUser;
+                    if (user != null) {
+                      await user.updatePassword(_passwordController.text);
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text("Password changed successfully")),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("No user logged in")),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Error: ${e.toString()}")),
+                    );
+                  }
                 }
               },
               child: const Text("Save"),
@@ -162,39 +172,6 @@ class _SettingScreenState extends State<SettingScreen> {
     );
   }
 
-  // ✅ แสดง Dialog เปลี่ยน username
-  void _showChangeUsernameDialog(BuildContext context) {
-    final TextEditingController _usernameController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Change Username"),
-          content: TextField(
-            controller: _usernameController,
-            decoration: const InputDecoration(labelText: "Enter new username"),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Username changed to: ${_usernameController.text}")),
-                );
-              },
-              child: const Text("Save"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // ✅ แสดง Dialog เกี่ยวกับเรา
   void _showAboutDialog(BuildContext context) {
     showDialog(
       context: context,

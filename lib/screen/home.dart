@@ -61,7 +61,7 @@ class HomeScreen extends StatelessWidget {
                       return RegisterScreen();
                     }));
                   },
-                  icon: Icon(Icons.add,
+                  icon: Icon(Icons.person_add,
                       color: const Color.fromARGB(
                           255, 255, 255, 255)), // ไอคอนสีขาว
                   label: Text(

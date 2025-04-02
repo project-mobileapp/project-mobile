@@ -16,6 +16,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final formKey = GlobalKey<FormState>();
   Profile profile = new Profile();
+  bool _obscurePassword = true;
   final Future<FirebaseApp> firebase = Firebase.initializeApp(
       options: FirebaseOptions(
           apiKey: "AIzaSyAipqWr4OO_igXIAdqD0aw1fHS9tDbCqoo",
@@ -61,7 +62,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             TextFormField(
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                labelStyle: TextStyle(fontSize: 25),
+                                labelStyle: TextStyle(fontSize: 20),
+                                prefixIcon:
+                                    Icon(Icons.email, color: Colors.grey),
                               ),
                               validator: MultiValidator([
                                 RequiredValidator(errorText: 'กรุณาป้อนอีเมล'),
@@ -76,10 +79,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             SizedBox(height: 15),
                             TextFormField(
                                 decoration: InputDecoration(
-                                  labelText: 'Password',
-                                  labelStyle: TextStyle(fontSize: 25),
-                                ),
-                                obscureText: true,
+                                    labelText: 'Password',
+                                    labelStyle: TextStyle(fontSize: 20),
+                                    prefixIcon:
+                                        Icon(Icons.lock, color: Colors.grey),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscurePassword = !_obscurePassword;
+                                        });
+                                      },
+                                    )),
+                                obscureText: _obscurePassword,
                                 validator: RequiredValidator(
                                     errorText: 'กรุณาป้อนรหัสผ่าน'),
                                 onSaved: (password) {
@@ -124,7 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         }
                                       }
                                     },
-                                    icon: Icon(Icons.app_registration_rounded,
+                                    icon: Icon(Icons.person_add,
                                         color: const Color.fromARGB(
                                             255, 255, 255, 255)), // ไอคอนสีดำ
                                     label: Text(
