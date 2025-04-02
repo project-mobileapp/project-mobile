@@ -238,7 +238,7 @@ class _CountdownScreenState extends State<CountdownScreen> {
                               ),
                               child: const Text(
                                 "เริ่ม",
-                                style: TextStyle(fontSize: 20),
+                                style: TextStyle(fontSize: 20, color: Colors.black),
                               ),
                             ),
                     ],
