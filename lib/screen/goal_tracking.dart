@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:project/screen/countdown_screen.dart';
 import 'package:project/screen/setting_screen.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'Addgoal.dart';
@@ -19,6 +20,12 @@ class _MainScreenState extends State<MainScreen>
   bool _isExpanded = false;
 
   List<Map<String, String>> goals = []; // เก็บรายการเป้าหมาย
+  int _convertTimeToSeconds(String time) {
+    List<String> parts = time.split(':'); // แยกชั่วโมงและนาที (HH:mm)
+    int hours = int.parse(parts[0]);
+    int minutes = int.parse(parts[1]);
+    return (hours * 3600) + (minutes * 60);
+  }
 
   @override
   void initState() {
@@ -92,13 +99,11 @@ class _MainScreenState extends State<MainScreen>
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
-
     return Scaffold(
-      backgroundColor: Colors.amber[50],
       appBar: AppBar(
         title: const Text('Goal Tracking🏆'),
         backgroundColor: Colors.amber[700],
-        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+        foregroundColor: const Color.fromARGB(255, 255, 222, 133),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
@@ -123,9 +128,20 @@ class _MainScreenState extends State<MainScreen>
                   title: Text(goal['title']),
                   subtitle:
                       Text('${goal['description']} \nTime: ${goal['time']} hr'),
+                  onTap: () {
+                    int durationInSeconds = _convertTimeToSeconds(goal['time']);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => CountdownScreen(
+                          goalTitle: goal['title'],
+                          goalDescription: goal['description'],
+                          duration: durationInSeconds,
+                        ),
+                      ),
+                    );
+                  },
                   trailing: Row(
-                    mainAxisSize: MainAxisSize
-                        .min, // สำคัญ! ป้องกันไม่ให้ Row ขยายเต็มพื้นที่
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         onPressed: () {
@@ -144,7 +160,7 @@ class _MainScreenState extends State<MainScreen>
                             context: context,
                             builder: (BuildContext context) {
                               return EditGoal(
-                                goalId: goal.id, // ✅ ส่งค่า goalId ไปแก้ไข
+                                goalId: goal.id,
                                 currentTitle: goal['title'],
                                 currentDescription: goal['description'],
                                 currentTime: goal['time'],

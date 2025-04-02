@@ -95,6 +95,7 @@ class _AddgoalState extends State<Addgoal> {
         const SnackBar(content: Text('Goal saved successfully!')),
       );
 
+      // ปิด Dialog หลังจากบันทึกเสร็จ
       Navigator.of(context).pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,7 +140,7 @@ class _AddgoalState extends State<Addgoal> {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: _saveGoalToFirebase, // เรียกฟังก์ชันบันทึก Firebase
+          onPressed: _saveGoalToFirebase, // บันทึกข้อมูลไปยัง Firebase
           child: const Text('Save'),
         ),
       ],
