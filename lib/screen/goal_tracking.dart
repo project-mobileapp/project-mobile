@@ -179,13 +179,6 @@ class _MainScreenState extends State<MainScreen>
             ),
             const SizedBox(height: 10),
             FloatingActionButton(
-              heroTag: "btn2",
-              onPressed: () {},
-              backgroundColor: Colors.amber[700],
-              child: const Icon(Icons.bar_chart),
-            ),
-            const SizedBox(height: 10),
-            FloatingActionButton(
               heroTag: "btn3",
               onPressed: () {
                 Navigator.push(

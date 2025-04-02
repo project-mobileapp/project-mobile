@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Scaffold(
                 appBar: AppBar(
-                  title: Text(''),
+                  title: Text('Login'),
                   backgroundColor: Colors.amber[700],
                   foregroundColor: Colors.black,
                 ),
@@ -51,13 +51,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                             SizedBox(height: 200),
-                            Center(
-                              child: Text(
-                                'Login',
-                                style: TextStyle(fontSize: 50),
-                                textAlign: TextAlign.center,
-                              ),
+                            SizedBox(height: 30),
+                            Image.asset(
+                              'images/1.jpg', // แก้ไขพาธตามไฟล์ที่ใช้งาน
+                              width: 350,
+                              height: 350,
                             ),
                             SizedBox(height: 50),
                             Text('Email', style: TextStyle(fontSize: 20)),
@@ -81,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onSaved: (password) {
                                   profile.password = password;
                                 }),
-                                SizedBox(height: 50),
+                            SizedBox(height: 50),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton.icon(
@@ -110,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     }
                                   }
                                 },
-                                icon: Icon(Icons.app_registration_rounded, 
+                                icon: Icon(Icons.app_registration_rounded,
                                     color: Colors.black), // ไอคอนสีขาว
                                 label: Text('Login',
                                     style: TextStyle(

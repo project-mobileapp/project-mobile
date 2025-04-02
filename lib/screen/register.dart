@@ -39,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Scaffold(
                 appBar: AppBar(
-                  title: Text(''),
+                  title: Text('Register'),
                   backgroundColor: Colors.amber[700],
                   foregroundColor: Colors.black,
                 ),
@@ -51,15 +51,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: 200),
-                            Center(
-                              child: Text(
-                                'Register',
-                                style: TextStyle(fontSize: 50),
-                                textAlign: TextAlign.center,
-                              ),
+                            SizedBox(height: 30),
+                            Image.asset(
+                              'images/1.jpg', // แก้ไขพาธตามไฟล์ที่ใช้งาน
+                              width: 350,
+                              height: 350,
                             ),
-                            SizedBox(height: 50),
                             Text('Email', style: TextStyle(fontSize: 20)),
                             TextFormField(
                               validator: MultiValidator([
