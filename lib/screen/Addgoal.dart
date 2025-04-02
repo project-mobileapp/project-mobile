@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Addgoal extends StatefulWidget {
   const Addgoal({super.key});
@@ -11,9 +12,11 @@ class Addgoal extends StatefulWidget {
 
 class _AddgoalState extends State<Addgoal> {
   final TextEditingController _goalTitleController = TextEditingController();
-  final TextEditingController _goalDescriptionController = TextEditingController();
+  final TextEditingController _goalDescriptionController =
+      TextEditingController();
   TimeOfDay? _selectedTime = TimeOfDay(hour: 0, minute: 0);
 
+  // Pick time using Cupertino Modal Popup
   Future<void> _pickTime() async {
     TimeOfDay? pickedTime = await showCupertinoModalPopup<TimeOfDay>(
       context: context,
@@ -68,34 +71,50 @@ class _AddgoalState extends State<Addgoal> {
     }
   }
 
+  // Format the time to "hh:mm"
   String _formatTime() {
     String hour = _selectedTime!.hour.toString().padLeft(2, '0');
     String minute = _selectedTime!.minute.toString().padLeft(2, '0');
     return "$hour:$minute";
   }
 
+  // Save goal data to Firestore
   Future<void> _saveGoalToFirebase() async {
     String title = _goalTitleController.text.trim();
     String description = _goalDescriptionController.text.trim();
     String time = _formatTime();
 
     if (title.isEmpty || description.isEmpty || _selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
       return;
     }
 
     try {
+      // Check if user is logged in
+      if (FirebaseAuth.instance.currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No user is logged in')),
+        );
+        return;
+      }
+
+      // Save to Firestore
       await FirebaseFirestore.instance.collection('goals').add({
         'title': title,
         'description': description,
         'time': time,
-        'created_at': FieldValue.serverTimestamp(), // บันทึกเวลาที่สร้าง
+        'user_email':
+            FirebaseAuth.instance.currentUser?.email, // store the email
+        'created_at': FieldValue.serverTimestamp(), // store creation timestamp
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Goal saved successfully!')),
       );
 
-      // ปิด Dialog หลังจากบันทึกเสร็จ
+      // Close the dialog after saving
       Navigator.of(context).pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +148,7 @@ class _AddgoalState extends State<Addgoal> {
               ),
               const Text("hr")
             ],
-          )
+          ),
         ],
       ),
       actions: [
@@ -140,7 +159,7 @@ class _AddgoalState extends State<Addgoal> {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: _saveGoalToFirebase, // บันทึกข้อมูลไปยัง Firebase
+          onPressed: _saveGoalToFirebase, // Save data to Firebase
           child: const Text('Save'),
         ),
       ],

@@ -1,11 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project/screen/Addgoal.dart';
 import 'package:project/screen/countdown_screen.dart';
-import 'package:project/screen/finished_tasks.dart';
 import 'package:project/screen/setting_screen.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'Addgoal.dart';
 import 'package:project/popup/edit_goal.dart';
 
 class MainScreen extends StatefulWidget {
@@ -17,8 +16,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
+  bool _isMenuOpen = false;
   late AnimationController _animationController;
-  bool _isExpanded = false;
 
   List<Map<String, String>> goals = []; // เก็บรายการเป้าหมาย
   int _convertTimeToSeconds(String time) {
@@ -33,29 +32,14 @@ class _MainScreenState extends State<MainScreen>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 300),
     );
   }
 
-  void _toggleExpand() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-      if (_isExpanded) {
-        _animationController.forward();
-      } else {
-        _animationController.reverse();
-      }
-    });
-  }
-
-  void _saveGoal(String title, String description, String time) {
-    setState(() {
-      goals.add({'title': title, 'description': description, 'time': time});
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Goal "$title" saved successfully at $time')),
-    );
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   void _showQrCodeDialog(
@@ -66,15 +50,15 @@ class _MainScreenState extends State<MainScreen>
         return AlertDialog(
           title: const Text('QR Code'),
           content: SizedBox(
-            width: 250.0, // กำหนดความกว้างของ QR Code
-            height: 250.0, // กำหนดความสูงของ QR Code
+            width: 250.0,
+            height: 250.0,
             child: QrImageView(
               data:
                   'หัวข้อ: $title\nคำอธิบาย: $description\nเวลา: $time ชั่วโมง',
               version: QrVersions.auto,
-              size: 200.0, // ขนาดของ QR Code
-              backgroundColor: Colors.white, // พื้นหลังของ QR Code
-              foregroundColor: Colors.white, // สีของ QR Code
+              size: 200.0,
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
             ),
           ),
           actions: [
@@ -92,43 +76,40 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
+    String? userEmail = FirebaseAuth.instance.currentUser?.email;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Goal Tracking🏆'),
+        title: const Text('Goal Details'),
         backgroundColor: Colors.amber[700],
         foregroundColor: Colors.white,
       ),
-      body: StreamBuilder(
+      body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('goals')
-            .orderBy('created_at', descending: true)
+            .where('user_email', isEqualTo: userEmail)
             .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No goals added yet!'));
+            return const Center(child: Text('No goals available'));
           }
 
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               var goal = snapshot.data!.docs[index];
+
               return Card(
                 margin: const EdgeInsets.all(8),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: ListTile(
-                  title: Text(goal['title']),
-                  subtitle:
-                      Text('${goal['description']} \nTime: ${goal['time']} hr'),
                   onTap: () {
                     int durationInSeconds = _convertTimeToSeconds(goal['time']);
                     Navigator.of(context).push(
@@ -141,6 +122,16 @@ class _MainScreenState extends State<MainScreen>
                       ),
                     );
                   },
+                  title: Text(goal['title'],
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Description: ${goal['description']}'),
+                      Text('Time: ${goal['time']} ชั่วโมง'),
+                    ],
+                  ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -182,49 +173,45 @@ class _MainScreenState extends State<MainScreen>
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_isExpanded) ...[
+          if (_isMenuOpen) ...[
             FloatingActionButton(
-              heroTag: "btn1",
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return Addgoal(); // ✅ เรียกใช้งานโดยไม่ต้องส่ง onSaveGoal
+                    return Addgoal();
                   },
                 );
               },
-              backgroundColor: Colors.amber[700],
-              child: const Icon(Icons.add_task),
-            ),
-            const SizedBox(height: 10),
-             FloatingActionButton(
               heroTag: "btn3",
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) =>FinishedTasksScreen()),
-                );
-              },
               backgroundColor: Colors.amber[700],
-              child: const Icon(Icons.task_alt),
+              child: const Icon(Icons.add),
             ),
             const SizedBox(height: 10),
             FloatingActionButton(
-              heroTag: "btn3",
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => SettingScreen()),
                 );
               },
+              heroTag: "btn1",
               backgroundColor: Colors.amber[700],
               child: const Icon(Icons.settings),
             ),
             const SizedBox(height: 10),
           ],
           FloatingActionButton(
-            heroTag: "toggle",
-            onPressed: _toggleExpand,
+            onPressed: () {
+              setState(() {
+                _isMenuOpen = !_isMenuOpen;
+                if (_isMenuOpen) {
+                  _animationController.forward();
+                } else {
+                  _animationController.reverse();
+                }
+              });
+            },
             backgroundColor: Colors.amber[700],
             child: AnimatedIcon(
               icon: AnimatedIcons.menu_close,
@@ -235,11 +222,4 @@ class _MainScreenState extends State<MainScreen>
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
 }
-//asdasd
