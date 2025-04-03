@@ -1,4 +1,4 @@
-import 'package:cool_alert/cool_alert.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -32,11 +32,12 @@ class _LoginScreenState extends State<LoginScreen> {
     return FutureBuilder(
         future: firebase,
         builder: (context, snapshot) {
-          if (snapshot.hasError)
+          if (snapshot.hasError) {
             return Scaffold(
               appBar: AppBar(title: Text('Error')),
               body: Center(child: Text('${snapshot.error}')),
             );
+          }
 
           if (snapshot.connectionState == ConnectionState.done) {
             return Scaffold(
@@ -44,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
               appBar: AppBar(
                 title: Text('Login'),
                 backgroundColor: Colors.amber[700],
-                foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                foregroundColor: Colors.white,
               ),
               body: Container(
                 padding: const EdgeInsets.all(20),
@@ -55,11 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 30),
-                        Image.asset(
-                          'images/1.jpg',
-                          width: 350,
-                          height: 350,
-                        ),
+                        Image.asset('images/1.jpg', width: 350, height: 350),
                         SizedBox(height: 50),
                         TextFormField(
                           decoration: InputDecoration(
@@ -72,9 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             EmailValidator(errorText: 'รูปแบบอีเมลไม่ถูกต้อง')
                           ]),
                           keyboardType: TextInputType.emailAddress,
-                          onSaved: (email) {
-                            profile.email = email;
-                          },
+                          onSaved: (email) => profile.email = email,
                         ),
                         SizedBox(height: 15),
                         TextFormField(
@@ -98,9 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           obscureText: _obscurePassword,
                           validator:
                               RequiredValidator(errorText: 'กรุณาป้อนรหัสผ่าน'),
-                          onSaved: (password) {
-                            profile.password = password;
-                          },
+                          onSaved: (password) => profile.password = password,
                         ),
                         SizedBox(height: 50),
                         SizedBox(
@@ -109,70 +102,46 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () async {
                               if (formKey.currentState!.validate()) {
                                 formKey.currentState!.save();
-
-                                // แสดง CoolAlert ชนิด loading ระหว่างที่ทำการเข้าสู่ระบบ
-                                CoolAlert.show(
-                                  context: context,
-                                  type: CoolAlertType.loading,
-                                  text: 'กำลังเข้าสู่ระบบ กรุณารอสักครู่...',
-                                );
-
                                 try {
                                   await FirebaseAuth.instance
                                       .signInWithEmailAndPassword(
-                                          email: profile.email.toString(),
-                                          password: profile.password.toString())
+                                    email: profile.email.toString(),
+                                    password: profile.password.toString(),
+                                  )
                                       .then((value) {
                                     formKey.currentState!.reset();
-
-                                    // ปิด CoolAlert ที่แสดง loading
-                                    Navigator.pop(context);
-
-                                    // แสดง CoolAlert เมื่อ Login สำเร็จ
-                                    CoolAlert.show(
+                                    AwesomeDialog(
                                       context: context,
-                                      type: CoolAlertType.success,
+                                      dialogType: DialogType.success,
+                                      animType: AnimType.bottomSlide,
                                       title: 'Login Successful',
-                                      text: 'You have logged in successfully!',
-                                      onConfirmBtnTap: () {
-                                        // ปิด CoolAlert
-                                        Navigator.pop(context);
-
-                                        // เปลี่ยนหน้าไปที่ MainScreen
+                                      desc: 'You have logged in successfully!',
+                                      btnOkOnPress: () {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => MainScreen(),
-                                          ),
+                                              builder: (context) =>
+                                                  MainScreen()),
                                         );
                                       },
-                                    );
+                                    ).show();
                                   });
                                 } on FirebaseAuthException catch (e) {
-                                  // ปิด CoolAlert ที่แสดง loading
-                                  Navigator.pop(context);
-
-                                  // แสดง CoolAlert เมื่อเกิดข้อผิดพลาด
-                                  CoolAlert.show(
+                                  AwesomeDialog(
                                     context: context,
-                                    type: CoolAlertType.error,
+                                    dialogType: DialogType.error,
+                                    animType: AnimType.topSlide,
                                     title: 'Login Failed',
-                                    text: e.message.toString(),
-                                  );
+                                    desc: e.message.toString(),
+                                    btnOkOnPress: () {},
+                                  ).show();
                                 }
                               }
                             },
-                            icon: Icon(
-                              Icons.login,
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                            ),
-                            label: Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: const Color.fromARGB(255, 255, 255, 255),
-                              ),
-                            ),
+                            icon: Icon(Icons.login, color: Colors.white),
+                            label: Text('Login',
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber[700],
                             ),

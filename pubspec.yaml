@@ -48,6 +48,7 @@ dependencies:
   fluttertoast: ^8.2.12
   rive: ^0.13.20
   flare_flutter: ^3.0.1
+  awesome_dialog: ^3.1.0
 
 dev_dependencies:
   flutter_test:

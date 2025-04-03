@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -26,138 +27,154 @@ class _RegisterScreenState extends State<RegisterScreen> {
           messagingSenderId: "373773082859",
           appId: "1:373773082859:web:6894de3bde90aad5159eae",
           measurementId: "G-46KQMG13DH"));
-  @override
+
+ @override
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: firebase,
         builder: (context, snapshot) {
-          if (snapshot.hasError)
+          if (snapshot.hasError) {
             return Scaffold(
               appBar: AppBar(title: Text('Error')),
               body: Center(child: Text('${snapshot.error}')),
             );
+          }
 
           if (snapshot.connectionState == ConnectionState.done) {
             return Scaffold(
-                backgroundColor: Colors.amber[50],
-                appBar: AppBar(
-                  title: Text('Register'),
-                  backgroundColor: Colors.amber[700],
-                  foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                ),
-                body: Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Form(
-                      key: formKey,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 30),
-                            Image.asset(
-                              'images/1.jpg', // แก้ไขพาธตามไฟล์ที่ใช้งาน
-                              width: 350,
-                              height: 350,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                labelStyle: TextStyle(fontSize: 20),
-                                prefixIcon:
-                                    Icon(Icons.email, color: Colors.grey),
+              backgroundColor: Colors.amber[50],
+              appBar: AppBar(
+                title: Text('Register'),
+                backgroundColor: Colors.amber[700],
+                foregroundColor: Colors.white,
+              ),
+              body: Container(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 30),
+                        Image.asset('images/1.jpg', width: 350, height: 350),
+                        SizedBox(height: 50),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            labelStyle: TextStyle(fontSize: 20),
+                            prefixIcon: Icon(Icons.email, color: Colors.grey),
+                          ),
+                          validator: MultiValidator([
+                            RequiredValidator(errorText: 'กรุณาป้อนอีเมล'),
+                            EmailValidator(errorText: 'รูปแบบอีเมลไม่ถูกต้อง')
+                          ]),
+                          keyboardType: TextInputType.emailAddress,
+                          onSaved: (email) => profile.email = email,
+                        ),
+                        SizedBox(height: 15),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            labelStyle: TextStyle(fontSize: 20),
+                            prefixIcon: Icon(Icons.lock, color: Colors.grey),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                               ),
-                              validator: MultiValidator([
-                                RequiredValidator(errorText: 'กรุณาป้อนอีเมล'),
-                                EmailValidator(
-                                    errorText: 'รูปแบบอีเมลไม่ถูกต้อง')
-                              ]),
-                              keyboardType: TextInputType.emailAddress,
-                              onSaved: (email) {
-                                profile.email = email;
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
                               },
                             ),
-                            SizedBox(height: 15),
-                            TextFormField(
-                                decoration: InputDecoration(
-                                    labelText: 'Password',
-                                    labelStyle: TextStyle(fontSize: 20),
-                                    prefixIcon:
-                                        Icon(Icons.lock, color: Colors.grey),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        _obscurePassword
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _obscurePassword = !_obscurePassword;
-                                        });
-                                      },
-                                    )),
-                                obscureText: _obscurePassword,
-                                validator: RequiredValidator(
-                                    errorText: 'กรุณาป้อนรหัสผ่าน'),
-                                onSaved: (password) {
-                                  profile.password = password;
-                                }),
-                            SizedBox(height: 50),
-                            SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                    onPressed: () async {
-                                      if (formKey.currentState!.validate()) {
-                                        formKey.currentState!.save();
-                                        try {
-                                          await FirebaseAuth.instance
-                                              .createUserWithEmailAndPassword(
-                                                  email:
-                                                      profile.email.toString(),
-                                                  password: profile.password
-                                                      .toString())
-                                              .then((value) {
-                                            formKey.currentState!.reset();
-                                            Fluttertoast.showToast(
-                                                msg: 'สร้างบัญชีเรียบร้อย');
-                                            Navigator.pushReplacement(context,
-                                                MaterialPageRoute(
-                                                    builder: (context) {
-                                              return HomeScreen();
-                                            }));
-                                          });
-                                        } on FirebaseAuthException catch (e) {
-                                          String message;
-                                          if (e.code == 'email-already-in-use')
-                                            message =
-                                                'อีเมลซ้ำไม่สามารถใช้งานได้';
-                                          else if (e.code == 'weak-password')
-                                            message =
-                                                'รหัสผ่านต้องมีความยาว 6 ตัวอักษรขึ้นไป';
-                                          else
-                                            message = e.message.toString();
-
-                                          Fluttertoast.showToast(msg: message);
-                                        }
-                                      }
-                                    },
-                                    icon: Icon(Icons.person_add,
-                                        color: const Color.fromARGB(
-                                            255, 255, 255, 255)), // ไอคอนสีดำ
-                                    label: Text(
-                                      'Register',
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          color: const Color.fromARGB(
-                                              255, 255, 255, 255)),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Colors.amber[700], // กำหนดสีพื้นหลัง
-                                    )))
-                          ],
+                          ),
+                          obscureText: _obscurePassword,
+                          validator:
+                              RequiredValidator(errorText: 'กรุณาป้อนรหัสผ่าน'),
+                          onSaved: (password) => profile.password = password,
                         ),
-                      )),
-                ));
+                        SizedBox(height: 50),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              if (formKey.currentState!.validate()) {
+                                formKey.currentState!.save();
+                                AwesomeDialog(
+                                  context: context,
+                                  dialogType: DialogType.noHeader,
+                                  animType: AnimType.scale,
+                                  title: 'Registering...',
+                                  desc: 'กรุณารอสักครู่...',
+                                  dialogBackgroundColor: Colors.white,
+                                  dismissOnTouchOutside: false,
+                                  dismissOnBackKeyPress: false,
+                                )..show();
+                                try {
+                                  await FirebaseAuth.instance
+                                      .createUserWithEmailAndPassword(
+                                          email: profile.email.toString(),
+                                          password: profile.password.toString())
+                                      .then((value) {
+                                    formKey.currentState!.reset();
+                                    Navigator.pop(context);
+                                    AwesomeDialog(
+                                      context: context,
+                                      dialogType: DialogType.success,
+                                      animType: AnimType.bottomSlide,
+                                      title: 'Registration Successful',
+                                      desc: 'Account created successfully!',
+                                      dialogBackgroundColor: Colors.white,
+                                      btnOkOnPress: () {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  HomeScreen()),
+                                        );
+                                      },
+                                    ).show();
+                                  });
+                                } on FirebaseAuthException catch (e) {
+                                  Navigator.pop(context);
+                                  String message;
+                                  if (e.code == 'email-already-in-use') {
+                                    message = 'อีเมลซ้ำไม่สามารถใช้งานได้';
+                                  } else if (e.code == 'weak-password') {
+                                    message = 'รหัสผ่านต้องมีความยาว 6 ตัวอักษรขึ้นไป';
+                                  } else {
+                                    message = e.message.toString();
+                                  }
+                                  AwesomeDialog(
+                                    context: context,
+                                    dialogType: DialogType.error,
+                                    animType: AnimType.topSlide,
+                                    title: 'Registration Failed',
+                                    desc: message,
+                                    dialogBackgroundColor: Colors.white,
+                                    btnOkOnPress: () {},
+                                  ).show();
+                                }
+                              }
+                            },
+                            icon: Icon(Icons.person_add, color: Colors.white),
+                            label: Text('Register',
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber[700],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
           }
           return Scaffold(
             body: Center(
